@@ -1,3 +1,12 @@
 {
-  "extends": "./.wxt/tsconfig.json"
+  "extends": ".wxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["vite/client", "wxt/client"]
+  },
+  "include": ["src", "entrypoints", "*.d.ts"]
 }
