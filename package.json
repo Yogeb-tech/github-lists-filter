@@ -15,9 +15,12 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@hk/github-graphql": "npm:@jsr/hk__github-graphql@^0.2.9",
+    "octokit": "^5.0.5",
     "vue": "^3.5.27"
   },
   "devDependencies": {
+    "@types/chrome": "^0.1.37",
     "@wxt-dev/module-vue": "^1.0.3",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.4",
