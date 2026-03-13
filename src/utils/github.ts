@@ -1,6 +1,10 @@
-// ~/lib/github.ts
-import { graphql } from "@hk/github-graphql/gql";
-import { Octokit } from "octokit";
+import type { GithubList, UserListsResponse } from "@/entrypoints/types/types";
+import { Octokit } from "@octokit/rest";
+import { browser } from "wxt/browser";
+
+// Global Instance
+let githubInstance: GitHubService | null = null;
+const logger = createLogger("github.ts");
 
 export class GitHubService {
   private octokit: Octokit;
@@ -8,70 +12,98 @@ export class GitHubService {
 
   constructor(token: string) {
     this.token = token;
-    // Initialize the main Octokit client - handles both REST and GraphQL [citation:5]
     this.octokit = new Octokit({
       auth: token,
-      // Optional: Set a custom user agent for your extension [citation:3][citation:5]
-      userAgent: "my-github-lists-extension/v1.0.0",
     });
   }
 
-  // REST API example - simple and straightforward [citation:2]
-  async getStarredRepos(username: string) {
+  async getStarredRepos() {
     try {
-      // Using the REST API via octokit.rest [citation:3][citation:7]
-      const response = await this.octokit.rest.activity.listReposStarredByUser({
-        username,
-        per_page: 30,
-      });
+      const response =
+        await this.octokit.rest.activity.listReposStarredByAuthenticatedUser({
+          per_page: 30,
+        });
       return response.data;
     } catch (error) {
-      console.error("Error fetching starred repos:", error);
+      logger.error("Error fetching starred repos:", error);
       throw error;
     }
   }
 
-  async getUserLists(username: string) {
+  async getUserLists(): Promise<GithubList[]> {
     try {
       const query = `
-      query($login: String!) {
-        user(login: $login) {
-          lists(first: 10) {
-            nodes {
-              name
-              description
-              isPrivate
-              slug
-              createdAt
-              updatedAt
-              items {
-                totalCount
+          query {
+            viewer {
+              lists(first: 32) {
+                nodes {
+                  name
+                  description
+                  createdAt
+                  updatedAt
+                  items {
+                    totalCount
+                  }
+                }
               }
             }
           }
-        }
-      }
-    `;
+        `;
 
-      const response = (await graphql(query)) as UserListsResponse;
+      const response = await this.octokit.graphql<UserListsResponse>(query);
 
-      return response.user.lists.nodes;
+      return response.viewer.lists.nodes.map(
+        (node: any): GithubList => ({
+          name: node.name,
+          description: node.description,
+          createdAt: node.createdAt,
+          updatedAt: node.updatedAt,
+          items: {
+            totalCount: node.items.totalCount,
+          },
+          isPrivate: false,
+          slug: node.name.toLowerCase().replace(/\s+/g, "-"),
+        }),
+      );
     } catch (error) {
-      console.error("Error fetching user lists:", error);
+      logger.error("Error fetching user lists:", error);
       throw error;
     }
+  }
+
+  async getUser(): Promise<{ login: string }> {
+    const response = await this.octokit.users.getAuthenticated();
+    return response.data;
+  }
+
+  public getOctokit(): Octokit {
+    return this.octokit;
   }
 }
 
 // Factory function to create the service with a token from storage
-export async function createGitHubService(): Promise<GitHubService | null> {
+export async function getGitHubService(): Promise<GitHubService | null> {
+  if (githubInstance) {
+    return githubInstance;
+  }
+
+  logger.debug("createGitHubService: Attempting to get token from storage");
+
   const result = await browser.storage.sync.get(["githubToken"]);
-  const githubToken = result.githubToken; // This is a string or undefined
+  logger.debug("createGitHubService: Storage result:", result);
+
+  const githubToken = result.githubToken;
 
   if (!githubToken || typeof githubToken !== "string") {
-    console.warn("No GitHub token found");
+    logger.warn("No GitHub token found in storage");
     return null;
   }
 
-  return new GitHubService(githubToken);
+  logger.debug("GitHub token found, creating service");
+  githubInstance = new GitHubService(githubToken);
+  return githubInstance;
+}
+
+export function clearGithubInstance() {
+  githubInstance = null;
 }

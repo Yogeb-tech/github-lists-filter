@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@hk/github-graphql": "npm:@jsr/hk__github-graphql@^0.2.9",
-    "octokit": "^5.0.5",
+    "@octokit/rest": "^22.0.1",
     "vue": "^3.5.27"
   },
   "devDependencies": {
