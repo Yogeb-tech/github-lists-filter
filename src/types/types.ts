@@ -1,4 +1,5 @@
 export interface GithubList {
+  id: string;
   name: string;
   description: string | null;
   isPrivate: boolean;
@@ -24,10 +25,4 @@ export interface UserListsResponse {
       }>;
     };
   };
-}
-
-export interface ProjectLogger {
-  debug(...args: any[]): void;
-  warn(...args: any[]): void;
-  error(...args: any[]): void;
 }

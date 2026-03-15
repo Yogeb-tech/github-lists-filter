@@ -1,5 +1,5 @@
-import type { GithubList } from "@/entrypoints/types/types";
-import { ProjectLogger } from "@/entrypoints/types/types";
+import type { GithubList } from "@/types/types";
+import { createLogger } from "@/utils/logger";
 import { readonly, ref } from "vue";
 import { browser } from "wxt/browser";
 import { clearGithubInstance, getGitHubService, GitHubService } from "./github";
@@ -12,7 +12,7 @@ const user = ref<{ login: string } | null>(null);
 const lists = ref<GithubList[] | null>(null);
 const githubService = ref<GitHubService | null>(null);
 
-const logger: ProjectLogger = createLogger("token.ts");
+const logger = createLogger("token.ts");
 
 // Load token from storage and initialize service
 export async function loadToken() {

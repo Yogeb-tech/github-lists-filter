@@ -26,6 +26,3 @@ export function createLogger(namespace: string) {
     },
   };
 }
-
-// Optional: keep a default export for gradual migration (not recommended for new code)
-// export const logger = createLogger('default');

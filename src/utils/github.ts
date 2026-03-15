@@ -1,4 +1,5 @@
-import type { GithubList, UserListsResponse } from "@/entrypoints/types/types";
+import type { GithubList } from "@/types/types";
+import { createLogger } from "@/utils/logger";
 import { Octokit } from "@octokit/rest";
 import { browser } from "wxt/browser";
 
@@ -31,29 +32,34 @@ export class GitHubService {
   }
 
   async getUserLists(): Promise<GithubList[]> {
+    logger.debug("Github: Fetching lists");
     try {
       const query = `
-          query {
-            viewer {
-              lists(first: 32) {
-                nodes {
-                  name
-                  description
-                  createdAt
-                  updatedAt
-                  items {
-                    totalCount
-                  }
-                }
+      query {
+        viewer {
+          lists(first: 32) {
+            nodes {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+              items {
+                totalCount
               }
             }
           }
-        `;
+        }
+      }
+    `;
 
-      const response = await this.octokit.graphql<UserListsResponse>(query);
+      const response = await this.octokit.graphql<{
+        viewer: { lists: { nodes: any[] } };
+      }>(query);
 
       return response.viewer.lists.nodes.map(
-        (node: any): GithubList => ({
+        (node): GithubList => ({
+          id: node.id, // ✅ include ID
           name: node.name,
           description: node.description,
           createdAt: node.createdAt,
@@ -71,12 +77,50 @@ export class GitHubService {
     }
   }
 
+  async getListRepos(listId: string): Promise<string[]> {
+    logger.debug(`Github: Fetching repos for list ID "${listId}"`);
+    try {
+      const query = `
+      query($listId: ID!) {
+        node(id: $listId) {
+          ... on UserList {
+            items(first: 100) {
+              nodes {
+                ... on Repository {
+                  nameWithOwner
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+      const response = await this.octokit.graphql<{
+        node: {
+          items: {
+            nodes: { nameWithOwner: string }[];
+          };
+        };
+      }>(query, { listId });
+
+      const repos = response.node.items.nodes.map((node) => node.nameWithOwner);
+      logger.debug(`Found ${repos.length} repos in list`);
+      return repos;
+    } catch (error) {
+      logger.error(`Error fetching repos for list:`, error);
+      return [];
+    }
+  }
+
   async getUser(): Promise<{ login: string }> {
+    logger.debug("Github: Fetching username");
     const response = await this.octokit.users.getAuthenticated();
     return response.data;
   }
 
   public getOctokit(): Octokit {
+    logger.debug("Github: Fetching Octokit");
     return this.octokit;
   }
 }

@@ -1,9 +1,9 @@
-import { ProjectLogger } from "@/entrypoints/types/types";
 import { GitHubService } from "@/utils/github";
+import { createLogger } from "@/utils/logger";
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 
-const logger: ProjectLogger = createLogger("background.ts");
+const logger = createLogger("background.ts");
 
 export default defineBackground(() => {
   let githubService: GitHubService | null = null;
