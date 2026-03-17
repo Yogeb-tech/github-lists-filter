@@ -9,10 +9,10 @@ import "./style.css";
 //
 // Check to see if it turns into scroll bar upon too many lists
 
-const { loadTheme } = useGitHubTheme();
+const { loadAndWatch } = useGitHubTheme();
 
 // Load theme before mounting app
-loadTheme()
+loadAndWatch()
   .then(() => {
     createApp(App).mount("#app");
   })

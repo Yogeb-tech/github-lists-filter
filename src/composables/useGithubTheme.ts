@@ -1,68 +1,50 @@
 import { createLogger } from "@/utils/logger";
-import { onMounted, ref } from "vue";
+import { ref, onUnmounted } from "vue";
 
 const logger = createLogger("useGitHubTheme");
 const currentTheme = ref<"light" | "dark">("light");
 
-// Type guard to validate theme
-function isValidTheme(theme: unknown): theme is "light" | "dark" {
-  return theme === "light" || theme === "dark";
+// Helper to check GitHub's actual current state
+export function getGitHubTheme(): "light" | "dark" {
+  const mode = document.documentElement.getAttribute("data-color-mode");
+  return mode === "dark" ? "dark" : "light";
 }
 
 export function useGitHubTheme() {
-  // Load initial theme from storage
-  const loadTheme = async (): Promise<void> => {
-    try {
-      const result = await browser.storage.local.get("githubTheme");
-
-      // Validate and set the theme
-      if (result.githubTheme && isValidTheme(result.githubTheme)) {
-        currentTheme.value = result.githubTheme;
-      } else {
-        currentTheme.value = "light"; // default fallback
-      }
-
-      applyThemeToDocument(currentTheme.value);
-      logger.debug(`Loaded theme from storage: ${currentTheme.value}`);
-    } catch (error) {
-      logger.error("Failed to load theme from storage:", error);
-      currentTheme.value = "light";
-      applyThemeToDocument("light");
-    }
-  };
-
-  // Apply theme to document
   const applyThemeToDocument = (theme: "light" | "dark"): void => {
-    // Remove existing theme classes
     document.documentElement.classList.remove("theme-light", "theme-dark");
     document.documentElement.classList.add(`theme-${theme}`);
+    currentTheme.value = theme;
   };
 
-  // Listen for theme changes from content script
-  const setupThemeListener = (): void => {
-    browser.storage.onChanged.addListener((changes, namespace) => {
-      if (namespace === "local" && changes.githubTheme) {
-        const newTheme = changes.githubTheme.newValue;
+  const loadAndWatch = async () => {
+    // Initial Load
+    const result = await browser.storage.local.get("githubTheme");
+    const theme =
+      result.githubTheme === "dark" || result.githubTheme === "light"
+        ? result.githubTheme
+        : getGitHubTheme();
 
-        // Validate the new theme value
-        if (isValidTheme(newTheme)) {
-          logger.debug(`Theme changed in storage: ${newTheme}`);
-          currentTheme.value = newTheme;
-          applyThemeToDocument(newTheme);
-        } else {
-          logger.warn(`Invalid theme value received: ${newTheme}`);
-        }
+    applyThemeToDocument(theme);
+
+    // Listen for storage changes (Sync across UI)
+    const listener = (changes: any, namespace: string) => {
+      if (namespace === "local" && changes.githubTheme) {
+        logger.debug(`Theme updated to: ${changes.githubTheme.newValue}`);
+        applyThemeToDocument(changes.githubTheme.newValue);
       }
+    };
+
+    browser.storage.onChanged.addListener(listener);
+
+    // Cleanup if used in a component
+    onUnmounted(() => {
+      browser.storage.onChanged.removeListener(listener);
     });
   };
 
-  onMounted(() => {
-    loadTheme();
-    setupThemeListener();
-  });
-
   return {
     currentTheme,
-    loadTheme,
+    loadAndWatch,
   };
 }
