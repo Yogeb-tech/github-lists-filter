@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { loadToken, saveToken, tokenState } from "@/utils/token";
+import { loadToken, saveToken, tokenState, clearToken } from "@/utils/token";
 import { onMounted, ref } from "vue";
+import ClearToken from "./ClearToken.vue";
 
 const { token: storedToken, loading, error, user, githubService } = tokenState;
 const inputToken = ref("");
+const logger = createLogger("UserInfo.vue");
 
 onMounted(loadToken);
 
@@ -21,53 +23,69 @@ function handleSave() {
   <div class="github-extension-panel">
     <h3>GitHub Extension</h3>
 
-    <!-- No token case -->
-    <div v-if="!githubService && !loading">
-      <p>No GitHub token found.</p>
-      <p>
-        <a
-          href="https://github.com/settings/tokens"
-          target="_blank"
-          rel="noopener"
-        >
-          Generate a token
-        </a>
-        with <code>repo</code> and <code>read:user</code> scopes.
-      </p>
-      <input
-        v-model="inputToken"
-        type="text"
-        placeholder="ghp_xxx..."
-        :disabled="loading"
-      />
-      <button @click="handleSave" :disabled="loading">
-        {{ loading ? "Saving..." : "Save Token" }}
-      </button>
-      <p v-if="error" class="error">{{ error }}</p>
+    <div class="main-content">
+      <!-- Token input prompt (no token or invalid token) -->
+      <div
+        v-if="
+          (!githubService || (githubService && !user && !loading)) && !loading
+        "
+        class="state-content"
+      >
+        <!-- Prompt for Github Token-->
+        <input
+          v-model="inputToken"
+          type="text"
+          placeholder="Enter GitHub token (ghp_xxx...)"
+          :disabled="loading"
+        />
+        <button @click="handleSave" :disabled="loading">
+          {{ loading ? "Saving..." : "Save Token" }}
+        </button>
+        <p v-if="error" class="error">ERROR: {{ error }}</p>
+        <p class="hint">
+          <a
+            href="https://github.com/settings/tokens"
+            target="_blank"
+            rel="noopener"
+          >
+            Generate a token
+          </a>
+          with <code>repo</code> and <code>read:user</code> scopes.
+        </p>
+      </div>
+
+      <!-- Loading state -->
+      <div v-else-if="loading" class="state-content">Loading...</div>
+
+      <!-- User info when ready -->
+      <div v-else-if="user" class="state-content">
+        Logged in as: <strong>{{ user.login }}</strong>
+      </div>
     </div>
 
-    <!-- Loading state -->
-    <div v-else-if="loading">Loading...</div>
-
-    <!-- User info when ready -->
-    <div v-else-if="user">
-      Logged in as: <strong>{{ user.login }}</strong>
+    <!-- Footer: show clear button when logged in -->
+    <div v-if="user" class="footer">
+      <ClearToken />
     </div>
-
-    <!-- Fallback if something unexpected -->
-    <div v-else>No user data available.</div>
   </div>
 </template>
 
 <style scoped>
+/*FIXME: This needs to be updated. I can't keep on updated width and height manually with width and height manually in App.vue*/
 .github-extension-panel {
   background: var(--bg-primary);
   padding: 16px;
   font-family: var(--font-mono);
   font-size: var(--font-base);
   color: var(--text-primary);
-  max-width: 400px;
-  margin: 0 auto;
+  width: 100%px;
+  height: 100%px;
+  min-width: 350px;
+  margin: 0;
+
+  /* Flexbox layout to push footer to bottom */
+  display: flex;
+  flex-direction: column;
 }
 
 .github-extension-panel h3 {
@@ -77,12 +95,25 @@ function handleSave() {
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
+  flex-shrink: 0; /* prevent heading from shrinking */
 }
 
-.github-extension-panel p {
-  margin: 8px 0;
+.main-content {
+  flex: 1;
+  margin-bottom: 12px; /* space before footer */
+}
+
+.state-content {
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
 }
 
 .github-extension-panel a {
@@ -167,11 +198,21 @@ function handleSave() {
 }
 
 /* Loading and user info text */
-.github-extension-panel div:not(.error) {
-  color: var(--text-secondary);
-}
-
 .github-extension-panel strong {
   color: var(--text-primary);
+}
+
+.hint {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-top: 8px;
+  text-align: center;
+}
+.hint a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+.hint a:hover {
+  text-decoration: underline;
 }
 </style>

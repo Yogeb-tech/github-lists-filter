@@ -3,11 +3,12 @@ import { createLogger } from "@/utils/logger";
 import { createApp } from "vue";
 import { createIntegratedUi } from "wxt/utils/content-script-ui/integrated";
 import { defineContentScript } from "wxt/utils/define-content-script";
-import "../assets/theme.css";
+import "./popup/style.css";
 
 const logger = createLogger("content.ts");
 
 export default defineContentScript({
+  // TODO: I need to refactor this to use the githubtheme composable
   matches: ["https://github.com/"],
   async main(ctx) {
     logger.debug("Content script started on GitHub page");
@@ -139,16 +140,13 @@ export default defineContentScript({
       anchor: "body",
       onMount: (container) => {
         logger.debug("Mounting Vue UI");
-        container.style.cssText = `
-          position: fixed;
-          top: 60px;
-          right: 20px;
-          z-index: 9999;
-          padding: 12px;
-          width: 280px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        `;
-        container.classList.add("my-extension-floating-panel");
+        container.classList.add("my-extension", "my-extension-injected-ui");
+
+        const theme = getGitHubTheme();
+        logger.debug("Theme is " + theme);
+        if (theme == "dark") {
+          container.classList.add("theme-dark");
+        }
 
         const app = createApp(ListsView);
         app.mount(container);

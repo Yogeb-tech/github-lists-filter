@@ -3,5 +3,7 @@ import UserInfo from "@/components/UserInfo.vue";
 </script>
 
 <template>
-  <UserInfo />
+  <div class="my-extension">
+    <UserInfo />
+  </div>
 </template>

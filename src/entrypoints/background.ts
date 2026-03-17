@@ -39,5 +39,18 @@ export default defineBackground(() => {
     }
   });
 
+  browser.runtime.onInstalled.addListener(async (details) => {
+    if (details.reason === "install") {
+      logger.debug("Background: First install detected, opening GitHub");
+
+      const GITHUB_URL =
+        "https://github.com/settings/tokens/new?description=Better+Repo+Filter&scopes=repo,read:user&default_expires_at=none";
+
+      await browser.tabs.create({
+        url: GITHUB_URL,
+        active: true, // Make sure it brings the tab to the front
+      });
+    }
+  });
   initService();
 });

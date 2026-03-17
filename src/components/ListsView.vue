@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { loadToken, tokenState } from "@/utils/token";
 import { onMounted, ref, watch } from "vue";
+import NoTokenFound from "./NoTokenFound.vue";
 
-const { lists, loading, githubService } = tokenState;
+const { user, lists, loading, githubService } = tokenState;
 const selectedListSlugs = ref<Set<string>>(new Set()); // track checked lists by slug (for display)
 const listRepos = ref<Map<string, string[]>>(new Map()); // cache repo names per list ID
 const fetching = ref<Set<string>>(new Set()); // track which list IDs are being fetched
@@ -78,6 +79,11 @@ function clearAll() {
 
     <div v-if="loading">Loading lists...</div>
 
+    <div v-else-if="(!githubService && !loading) || !user">
+      <NoTokenFound />
+      <p>Input this token into the browser extension. Then reload the page</p>
+    </div>
+
     <div v-else class="filter-options">
       <div class="list-item clear-all">
         <label>
@@ -114,8 +120,7 @@ function clearAll() {
 
 <style scoped>
 .lists-panel {
-  margin-top: 12px;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 12px;
@@ -130,43 +135,22 @@ function clearAll() {
   color: var(--text-primary);
 }
 
-/* Style 3: Checkmark */
-.checkmark-style {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  padding: 12px;
-  border-radius: 8px;
-  transition: background 0.2s ease;
-}
-
-.checkmark-style:hover {
-  background: #f8fafc;
-}
-
-.checkmark-style .check-box {
-  position: relative;
-  width: 22px;
-  height: 22px;
-  border: 2px solid #d1d5db;
-  border-radius: 6px;
-  margin-right: 12px;
-  transition: all 0.3s ease;
-}
 .clear-all {
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 6px;
   margin-bottom: 6px;
 }
+
 .spinner {
   display: inline-block;
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

@@ -1,17 +1,63 @@
+/* ===== THEME VARIABLES ===== */
+:root {
+  /* Light theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --text-primary: #24292e;
+  --text-secondary: #586069;
+  --border-color: #e1e4e8;
+  --accent-color: #0366d6;
+  --accent-hover: #005cc5;
+  --button-bg: #fafbfc;
+  --button-border: #1b1f2326;
+  --error-color: #cb2431;
+  --success-color: #00b16a;
+
+  /* Typography */
+  --font-mono: "SF Mono", Monaco, Consolas, monospace;
+  --font-sm: 12px;
+  --font-base: 13px;
+  --font-md: 14px;
+  --font-lg: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.theme-dark {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border-color: #30363d;
+  --accent-color: #58a6ff;
+  --accent-hover: #79c0ff;
+  --button-bg: #21262d;
+  --button-border: #f0f6fc1a;
+  --error-color: #f85149;
+  --success-color: #00b16a;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== GLOBAL BASE STYLES FROM WXT ===== */
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0; /* only reset margin, no forced layouts */
 }
 
 a {
@@ -21,14 +67,6 @@ a {
 }
 a:hover {
   color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -59,22 +97,177 @@ button:focus-visible {
   padding: 2em;
 }
 
+/* ===== BASE ID ===== */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Ensure #app inside the extension container fills it completely */
+.my-extension #app {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== EXTENSION CONTAINER ===== */
+.my-extension {
+  /* Themed background – this is the only background needed */
+  background: var(--bg-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  /* Contain children to respect border-radius and avoid overflow */
+  overflow: hidden;
+  /* Positioning and width are typically set inline in the content script */
+}
+
+/* ===== SCOPED ELEMENT STYLES ===== */
+.my-extension h3 {
+  margin: 0 0 16px 0;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.my-extension p {
+  margin: 8px 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.my-extension a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+.my-extension a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.my-extension code {
+  font-family: var(--font-mono, "SF Mono", Monaco, Consolas, monospace);
+  font-size: var(--font-sm);
+  background: var(--bg-secondary);
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+}
+
+.my-extension input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  margin: 8px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: var(--font-base);
+  font-family: var(--font-mono, monospace);
+  box-sizing: border-box;
+}
+.my-extension input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.3);
+}
+.my-extension input[type="text"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.my-extension button {
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: var(--text-primary);
+  font-size: var(--font-base);
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+}
+.my-extension button:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+.my-extension button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.my-extension .error {
+  color: var(--error-color);
+  font-size: var(--font-sm);
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  border-left: 3px solid var(--error-color);
+}
+
+.my-extension strong {
+  color: var(--text-primary);
+}
+
+/* Checkbox styling */
+.my-extension input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 3px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  vertical-align: middle;
+}
+.my-extension input[type="checkbox"]:checked {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.my-extension input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: white;
+  display: block;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+.my-extension input[type="checkbox"]:hover {
+  border-color: var(--accent-color);
+}
+
+/* ===== INJECTED UI IN WWW.GITHUB.COM ===== */
+.my-extension-injected-ui {
+  position: absolute;
+  top: max(31rem, 25vh);
+  right: clamp(1.25rem, 8vw, 9.375rem);
+  z-index: 9999;
+  padding: 0;
+  width: clamp(15rem, 20vw, 19.375rem);
+    right 0.3s ease,
+    width 0.3s ease;
+}
+
+@media (max-width: 1500px) {
+  .my-extension-injected-ui {
+    right: 2vw;
+    width: 18vw;
+    min-width: 15rem;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+}
+
+@media (max-width: 1250px) {
+  .my-extension-injected-ui {
+    display: none;
   }
 }
