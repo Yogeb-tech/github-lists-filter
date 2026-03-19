@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { loadToken, saveToken, tokenState, clearToken } from "@/utils/token";
+import { loadToken, saveToken, tokenState } from "@/utils/token";
 import { onMounted, ref } from "vue";
 import ClearToken from "./ClearToken.vue";
+import { Icon } from "@iconify/vue";
 
-const { token: storedToken, loading, error, user, githubService } = tokenState;
+const { loading, error, user, githubService } = tokenState;
 const inputToken = ref("");
 const logger = createLogger("UserInfo.vue");
 
@@ -21,7 +22,33 @@ function handleSave() {
 
 <template>
   <div class="github-extension-panel">
-    <h3>GitHub Extension</h3>
+    <!-- Header with title and social icons -->
+    <div class="header">
+      <h3>Improved Repo Filter</h3>
+      <div class="header-icons">
+        <!-- Ko‑fi icon -->
+        <a
+          href="https://ko-fi.com/yogeb"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="icon-link"
+          title="Support me on Ko‑fi"
+        >
+          <Icon icon="simple-icons:kofi" width="18" height="18" />
+        </a>
+
+        <!-- GitHub icon -->
+        <a
+          href="https://github.com/Yogeb-tech/better-repo-filter"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="icon-link"
+          title="View source on GitHub"
+        >
+          <Icon icon="simple-icons:github" width="18" height="18" />
+        </a>
+      </div>
+    </div>
 
     <div class="main-content">
       <!-- Token input prompt (no token or invalid token) -->
@@ -31,7 +58,6 @@ function handleSave() {
         "
         class="state-content"
       >
-        <!-- Prompt for Github Token-->
         <input
           v-model="inputToken"
           type="text"
@@ -71,36 +97,61 @@ function handleSave() {
 </template>
 
 <style scoped>
-/*FIXME: This needs to be updated. I can't keep on updated width and height manually with width and height manually in App.vue*/
 .github-extension-panel {
   background: var(--bg-primary);
   padding: 16px;
   font-family: var(--font-mono);
   font-size: var(--font-base);
   color: var(--text-primary);
-  width: 100%px;
-  height: 100%px;
+  width: 100%;
+  height: 100%;
   min-width: 350px;
   margin: 0;
-
-  /* Flexbox layout to push footer to bottom */
   display: flex;
+
+  /* To put footer at the end */
   flex-direction: column;
+  box-sizing: border-box;
 }
 
-.github-extension-panel h3 {
-  margin: 0 0 16px 0;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.header h3 {
+  margin: 0;
   font-size: var(--font-lg);
   font-weight: 600;
   color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 8px;
-  flex-shrink: 0; /* prevent heading from shrinking */
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.header-icons {
+  display: flex;
+  gap: 12px;
+}
+
+.header-icons .icon-link {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.header-icons .icon-link:hover {
+  color: var(--accent-color);
 }
 
 .main-content {
   flex: 1;
-  margin-bottom: 12px; /* space before footer */
+  margin-bottom: 12px;
 }
 
 .state-content {
@@ -197,7 +248,6 @@ function handleSave() {
   border-left: 3px solid var(--error-color);
 }
 
-/* Loading and user info text */
 .github-extension-panel strong {
   color: var(--text-primary);
 }

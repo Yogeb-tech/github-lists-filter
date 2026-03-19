@@ -1,7 +1,14 @@
-# WXT + Vue 3
+## Run Commands
 
-This template should help get you started developing with Vue 3 in WXT.
+- **dev**: `npm run dev`
+- **dev:firefox**: `npm run dev:firefox`
+- **build**: `npm run build`
+- **build:firefox**: `npm run build:firefox`
 
-## Recommended IDE Setup
+## Feedback
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar).
+I'm open to all suggestions or concerns. Feel free to open an issue for me to look at or if you would like to contribute to this add-on
+
+## License
+
+This project is licensed under the MIT License.

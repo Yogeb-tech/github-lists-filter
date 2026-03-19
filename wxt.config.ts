@@ -20,7 +20,13 @@ export default defineConfig({
     browser_specific_settings: {
       gecko: {
         id: "better-repo-filter@local-dev.com",
-      },
+        strict_min_version: "142.0",
+        data_collection_permissions: {
+          description:
+            "This extension stores a GitHub personal access token locally to fetch the user's starred repositories and lists. No data is sent to third parties.",
+          required: ["authenticationInfo", "bookmarksInfo", "websiteActivity"],
+        },
+      } as any,
     },
   },
 });

@@ -118,13 +118,10 @@ button:focus-visible {
 
 /* ===== EXTENSION CONTAINER ===== */
 .my-extension {
-  /* Themed background – this is the only background needed */
   background: var(--bg-primary);
   border-radius: 8px;
   box-shadow: var(--shadow-md);
-  /* Contain children to respect border-radius and avoid overflow */
   overflow: hidden;
-  /* Positioning and width are typically set inline in the content script */
 }
 
 /* ===== SCOPED ELEMENT STYLES ===== */
