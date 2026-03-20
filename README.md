@@ -37,3 +37,7 @@ Browser extension to declutter GitHub by filtering your activity feed using GitH
 ## License
 
 MIT
+
+## Support
+
+If this helps you, please consider leaving a review or starring the repo! Every bit of support is appreciated. :)
