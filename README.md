@@ -1,6 +1,7 @@
 # Better Repo Filter
 
 Browser extension to declutter GitHub by filtering your activity feed using GitHub Lists. Built with [WXT](https://wxt.dev/), [TypeScript](https://www.typescriptlang.org/), and [Vue.js](https://vuejs.org/).
+
 **Links**
 - **Chrome / Edge**: [Chrome Web Store link](https://chromewebstore.google.com/detail/github-lists-filter/khjenoidbnjnmjghghioeclmhhfhkpld)
 - **Firefox**: [Firefox Add-ons link](https://addons.mozilla.org/en-US/firefox/addon/better-repo-filter/)
