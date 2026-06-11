@@ -12,7 +12,7 @@ export default defineConfig({
     name: "Github Lists Filter",
     description:
       "A browser extension that allows you to filter your repositories based on its list in github",
-    version: "1.0.4",
+    version: "1.0.5",
     permissions: ["storage"],
     host_permissions: ["https://github.com/", "https://api.github.com/*"],
 
