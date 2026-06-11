@@ -1,17 +1,17 @@
-import ListsView from "@/components/ListsView.vue";
-import { createLogger } from "@/utils/logger";
-import { createApp } from "vue";
-import { createIntegratedUi } from "wxt/utils/content-script-ui/integrated";
-import { defineContentScript } from "wxt/utils/define-content-script";
-import "./popup/style.css";
-import { getGitHubTheme, useGitHubTheme } from "@/composables/useGithubTheme";
+import ListsView from '@/components/ListsView.vue';
+import { createLogger } from '@/utils/logger';
+import { createApp } from 'vue';
+import { createIntegratedUi } from 'wxt/utils/content-script-ui/integrated';
+import { defineContentScript } from 'wxt/utils/define-content-script';
+import './popup/style.css';
+import { getGitHubTheme, useGitHubTheme } from '@/composables/useGithubTheme';
 
-const logger = createLogger("content.ts");
+const logger = createLogger('content.ts');
 
 export default defineContentScript({
-  matches: ["https://github.com/"],
+  matches: ['https://github.com/'],
   async main(ctx) {
-    logger.debug("Content script started");
+    logger.debug('Content script started');
 
     /* --- THEME SYNC LOGIC --- */
     // Sync GitHub's current theme to storage immediately
@@ -25,7 +25,7 @@ export default defineContentScript({
 
     themeObserver.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["data-color-mode"],
+      attributeFilter: ['data-color-mode'],
     });
 
     /* --- FILTERING LOGIC --- */
@@ -33,9 +33,9 @@ export default defineContentScript({
 
     const getFeedContainer = () => {
       const selectors = [
-        "#conduit-feed-frame",
-        "feed-container",
-        ".js-for-you-feed-items",
+        '#conduit-feed-frame',
+        'feed-container',
+        '.js-for-you-feed-items',
       ];
       return selectors
         .map((s) => document.querySelector(s))
@@ -45,7 +45,7 @@ export default defineContentScript({
     const getRepoNameFromItem = (item: Element): string | null => {
       const link = item.querySelector('a[data-hovercard-type="repository"]');
       return link
-        ? (link as HTMLElement).innerText.replace(/\s+/g, "").trim()
+        ? (link as HTMLElement).innerText.replace(/\s+/g, '').trim()
         : null;
     };
 
@@ -53,7 +53,7 @@ export default defineContentScript({
       const feed = getFeedContainer();
       if (!feed) return;
 
-      const items = feed.querySelectorAll("article.js-feed-item-component");
+      const items = feed.querySelectorAll('article.js-feed-item-component');
       items.forEach((item) => {
         const htmlElement = item as HTMLElement;
         const repoName = getRepoNameFromItem(item);
@@ -63,14 +63,14 @@ export default defineContentScript({
           repoName &&
           !allowedRepos.includes(repoName)
         ) {
-          htmlElement.style.setProperty("display", "none", "important");
+          htmlElement.style.setProperty('display', 'none', 'important');
         } else {
-          htmlElement.style.setProperty("display", "", "important");
+          htmlElement.style.setProperty('display', '', 'important');
         }
       });
     };
 
-    window.addEventListener("github-filter-changed", (e: any) => {
+    window.addEventListener('github-filter-changed', (e: any) => {
       allowedRepos = e.detail.repos || [];
       applyFilter();
     });
@@ -82,10 +82,10 @@ export default defineContentScript({
 
     /* --- UI MOUNTING --- */
     const ui = createIntegratedUi(ctx, {
-      position: "inline",
-      anchor: "body",
+      position: 'inline',
+      anchor: document.querySelector('aside.feed-right-sidebar'),
       onMount: (container) => {
-        container.classList.add("my-extension", "my-extension-injected-ui");
+        container.classList.add('my-extension', 'my-extension-injected-ui');
 
         // Initialize theme composable logic
         const { loadAndWatch } = useGitHubTheme();
