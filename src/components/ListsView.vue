@@ -3,12 +3,23 @@ import { loadToken, tokenState } from "@/utils/token";
 import { onMounted, ref, watch } from "vue";
 import NoTokenFound from "./NoTokenFound.vue";
 
+const STORAGE_KEY = "selected-github-lists";
+
 const { user, lists, loading, githubService } = tokenState;
 const selectedListSlugs = ref<Set<string>>(new Set()); // track checked lists by slug (for display)
 const listRepos = ref<Map<string, string[]>>(new Map()); // cache repo names per list ID
 const fetching = ref<Set<string>>(new Set()); // track which list IDs are being fetched
 
-onMounted(loadToken);
+onMounted(async () => {
+  await loadToken()
+
+  const result = await browser.storage.local.get(STORAGE_KEY)
+  const stored = result[STORAGE_KEY] as string | undefined
+
+  if (stored){
+    selectedListSlugs.value = new Set(stored)
+  }
+});
 
 watch(
   selectedListSlugs,
@@ -48,6 +59,10 @@ watch(
     // Combine and deduplicate
     const allRepos = selectedIds.flatMap((id) => listRepos.value.get(id) || []);
     const uniqueRepos = [...new Set(allRepos)];
+  
+    await browser.storage.local.set({
+      [STORAGE_KEY]: [...newSet],
+    });
 
     window.dispatchEvent(
       new CustomEvent("github-filter-changed", {
