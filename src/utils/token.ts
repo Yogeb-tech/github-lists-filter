@@ -19,7 +19,7 @@ export async function loadToken() {
   loading.value = true;
   error.value = null;
   try {
-    const result = await browser.storage.sync.get("githubToken");
+    const result = await browser.storage.local.get("githubToken");
     token.value =
       typeof result.githubToken === "string" ? result.githubToken : null;
 
@@ -54,7 +54,7 @@ export async function saveToken(newToken: string) {
   error.value = null;
 
   try {
-    await browser.storage.sync.set({ githubToken: newToken.trim() });
+    await browser.storage.local.set({ githubToken: newToken.trim() });
     // Clear cached service so next getGitHubService() uses the new token
     clearGithubInstance();
     token.value = newToken.trim();
@@ -73,7 +73,7 @@ export async function saveToken(newToken: string) {
 export async function clearToken() {
   loading.value = true;
   try {
-    await browser.storage.sync.remove("githubToken");
+    await browser.storage.local.remove("githubToken");
     clearGithubInstance();
     token.value = null;
     githubService.value = null;

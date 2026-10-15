@@ -11,7 +11,7 @@ export default defineBackground(() => {
 
   async function initService() {
     logger.debug("Background: Initializing GitHub service");
-    const result = await browser.storage.sync.get("githubToken");
+    const result = await browser.storage.local.get("githubToken");
     logger.debug("Background: Storage result:", result);
 
     const githubToken = result.githubToken;

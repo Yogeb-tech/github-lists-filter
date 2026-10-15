@@ -131,7 +131,7 @@ export async function getGitHubService(): Promise<GitHubService | null> {
 
   logger.debug("createGitHubService: Attempting to get token from storage");
 
-  const result = await browser.storage.sync.get(["githubToken"]);
+  const result = await browser.storage.local.get(["githubToken"]);
   logger.debug("createGitHubService: Storage result:", result);
 
   const githubToken = result.githubToken;
