@@ -1,6 +1,6 @@
 import ListsView from "@/components/ListsView.vue";
 import { createLogger } from "@/utils/logger";
-import { createApp } from "vue";
+import { createApp, defineComponent, h } from "vue";
 import { createIntegratedUi } from "wxt/utils/content-script-ui/integrated";
 import { defineContentScript } from "wxt/utils/define-content-script";
 import "./popup/style.css";
@@ -8,13 +8,44 @@ import { getGitHubTheme, useGitHubTheme } from "@/composables/useGithubTheme";
 
 const logger = createLogger("content.ts");
 
+// Wrapper component so useGitHubTheme() runs inside Vue setup()
+const App = defineComponent({
+  setup() {
+    const { loadAndWatch } = useGitHubTheme();
+    loadAndWatch();
+
+    return () => h(ListsView);
+  },
+});
+
+function waitForElement(selector: string, timeout = 10000): Promise<Element> {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(selector);
+    if (existing) return resolve(existing);
+
+    const observer = new MutationObserver(() => {
+      const el = document.querySelector(selector);
+      if (el) {
+        observer.disconnect();
+        resolve(el);
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    setTimeout(() => {
+      observer.disconnect();
+      reject(new Error(`Timed out waiting for ${selector}`));
+    }, timeout);
+  });
+}
+
 export default defineContentScript({
-  matches: ["https://github.com/feed"],
+  matches: ["https://github.com/feed*"],
   async main(ctx) {
     logger.debug("Content script started");
 
     /* --- THEME SYNC LOGIC --- */
-    // Sync GitHub's current theme to storage immediately
     await browser.storage.local.set({ githubTheme: getGitHubTheme() });
 
     // Watch GitHub's <html> tag for theme attribute changes
@@ -81,17 +112,21 @@ export default defineContentScript({
     filterObserver.observe(document.body, { childList: true, subtree: true });
 
     /* --- UI MOUNTING --- */
+    let anchor: Element;
+    try {
+      anchor = await waitForElement("aside.feed-right-column");
+    } catch (err) {
+      logger.error("Could not find feed sidebar anchor:", err);
+      return;
+    }
+
     const ui = createIntegratedUi(ctx, {
       position: "inline",
-      anchor: document.querySelector("aside.feed-right-sidebar"),
+      anchor,
       onMount: (container) => {
         container.classList.add("my-extension", "my-extension-injected-ui");
 
-        // Initialize theme composable logic
-        const { loadAndWatch } = useGitHubTheme();
-        loadAndWatch();
-
-        const app = createApp(ListsView);
+        const app = createApp(App);
         app.mount(container);
         return app;
       },
