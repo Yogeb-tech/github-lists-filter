@@ -57,20 +57,18 @@ export class GitHubService {
         viewer: { lists: { nodes: any[] } };
       }>(query);
 
-      return response.viewer.lists.nodes.map(
-        (node): GithubList => ({
-          id: node.id, // ✅ include ID
-          name: node.name,
-          description: node.description,
-          createdAt: node.createdAt,
-          updatedAt: node.updatedAt,
-          items: {
-            totalCount: node.items.totalCount,
-          },
-          isPrivate: false,
-          slug: node.name.toLowerCase().replace(/\s+/g, "-"),
-        }),
-      );
+      return response.viewer.lists.nodes.map((node): GithubList => ({
+        id: node.id,
+        name: node.name,
+        description: node.description,
+        createdAt: node.createdAt,
+        updatedAt: node.updatedAt,
+        items: {
+          totalCount: node.items.totalCount,
+        },
+        isPrivate: false,
+        slug: node.name.toLowerCase().replace(/\s+/g, "-"),
+      }));
     } catch (error) {
       logger.error("Error fetching user lists:", error);
       throw error;

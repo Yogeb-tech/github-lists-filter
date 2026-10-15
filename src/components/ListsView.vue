@@ -11,13 +11,13 @@ const listRepos = ref<Map<string, string[]>>(new Map()); // cache repo names per
 const fetching = ref<Set<string>>(new Set()); // track which list IDs are being fetched
 
 onMounted(async () => {
-  await loadToken()
+  await loadToken();
 
-  const result = await browser.storage.local.get(STORAGE_KEY)
-  const stored = result[STORAGE_KEY] as string | undefined
+  const result = await browser.storage.local.get(STORAGE_KEY);
+  const stored = result[STORAGE_KEY] as string | undefined;
 
-  if (stored){
-    selectedListSlugs.value = new Set(stored)
+  if (stored) {
+    selectedListSlugs.value = new Set(stored);
   }
 });
 
@@ -59,7 +59,7 @@ watch(
     // Combine and deduplicate
     const allRepos = selectedIds.flatMap((id) => listRepos.value.get(id) || []);
     const uniqueRepos = [...new Set(allRepos)];
-  
+
     await browser.storage.local.set({
       [STORAGE_KEY]: [...newSet],
     });
