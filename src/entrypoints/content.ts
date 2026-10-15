@@ -9,7 +9,7 @@ import { getGitHubTheme, useGitHubTheme } from "@/composables/useGithubTheme";
 const logger = createLogger("content.ts");
 
 export default defineContentScript({
-  matches: ["https://github.com/"],
+  matches: ["https://github.com/feed"],
   async main(ctx) {
     logger.debug("Content script started");
 

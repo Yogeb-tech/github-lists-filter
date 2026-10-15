@@ -14,7 +14,7 @@ export default defineConfig({
       "A browser extension that allows you to filter your repositories based on its list in github",
     version: "1.0.6",
     permissions: ["storage"],
-    host_permissions: ["https://github.com/", "https://api.github.com/*"],
+    host_permissions: ["https://github.com/feed", "https://api.github.com/*"],
 
     // Firefox Storage API support
     browser_specific_settings: {
